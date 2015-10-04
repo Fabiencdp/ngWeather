@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 var request = require('request-promise');
-
+var Twitter = require('twit')
 
 
 /**
@@ -30,12 +30,24 @@ router.get('/', function(req, res, next) {
  */
 router.get('/getWeather', function(req, res, next) {
 
-	request({
-		url: req.app.locals.config.openWeather.endpoint + 'weather',
-		qs: {
-			q: req.query.name,
+	var params = {
+		q: req.query.name,
+		units: 'metric',
+	}
+
+	if ( req.query.lat && req.query.lng ) {
+		var params = {
+			lat: req.query.lat,
+			lon: req.query.lng,
 			units: 'metric',
 		}
+	}
+
+	console.log(params);
+
+	request({
+		url: req.app.locals.config.openWeather.endpoint + 'weather',
+		qs: params,
 	}).then( function getWeather(response) {
 
 		return res.send(response);
@@ -113,6 +125,37 @@ router.get('/getCities', function(req, res, next) {
 
 
 });
+
+
+
+/**
+ * getLastTweets
+ * Get last tweet
+ * Use twitter API
+ * 
+ * @return {object}       tweets
+ */
+router.get('/getLastTweets', function(req, res, next) {
+
+	// Request token
+	var twitter = new Twitter({
+	    consumer_key: req.app.locals.config.twitter.clientId,
+	  	consumer_secret: req.app.locals.config.twitter.clientSecret,
+	  	access_token: req.app.locals.config.twitter.tokenKey,
+	   	access_token_secret: req.app.locals.config.twitter.tokenSecret,
+	})
+
+	twitter.get('search/tweets', { 
+		q: req.query.tags,
+		count: 5 
+	}, function(err, data, response) {
+	  	if ( err )  return res.status(500);
+
+	  	return res.send(data);
+	})
+
+});
+
 
 
 

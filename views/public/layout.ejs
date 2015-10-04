@@ -53,7 +53,25 @@
 
 
 
+		<div ng-if="userWeather" class="user-weather">
+
+			<h4>Current weather in <b>{{userWeather.name}}</b></h4>
+			<div class="pull-left">
+				<i class="wi icon-{{userWeather.weather[0].icon}} margin"></i>
+			</div>
+			<div class="description">
+				<span class="temp">{{userWeather.main.temp}} °</span>
+				{{userWeather.weather[0].description}}
+			</div>
+
+			
+		</div>
+
+
+
 		<div class="sidebar col-sm-3 col-xs-12 pull-right force-large">
+
+
 
 			<!-- CITIES LIST -->
 			<div class="cities-list" ng-show="! selected.name">
@@ -168,7 +186,6 @@
 								<div>Min {{day.temp.min | number:0 }}°</div>
 								<div>Max {{day.temp.max | number:0 }}°</div>
 							</div>
-
 						</li>
 
 					</ul>
@@ -176,6 +193,20 @@
 				</div>
 
 				<div class="clearfix"></div>
+				<hr>
+
+				<div ng-if="tweets.length > 0" class="last-tweets">
+
+					<h4>Last tweets about {{selected.name}}</h4>
+					
+					<ul>
+						<li ng-repeat="tweet in tweets track by $index">
+							<h5><b>@{{tweet.user.screen_name}}</b></h5>
+							<p ng-bind-html="tweet.formattedText"></p>
+						</li>
+					</ul>
+
+				</div>
 
 			</div>
 

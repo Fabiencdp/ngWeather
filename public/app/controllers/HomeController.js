@@ -4,7 +4,7 @@
 
 angular
 .module('PublicModule')
-.controller('HomeController', ['$scope', '$http', 'uiGmapIsReady', function( $scope, $http, uiGmapIsReady ) {
+.controller('HomeController', ['$scope', '$http', '$sce', 'uiGmapIsReady', function( $scope, $http, $sce, uiGmapIsReady ) {
 	
 
 	// Define some variables
@@ -101,6 +101,11 @@ angular
 				}
 				
 			})
+
+			// get tweets
+			self.getLastTweets($scope.selected, function (tweets) {
+				console.log(tweets);
+			});
 
 		})
 
@@ -215,10 +220,12 @@ angular
 
 						// Stop the loop
 						if ( i >= markers.length ) return;
-						
+
 						next(i);
 
 					});
+
+
 
 				}
 
@@ -232,6 +239,44 @@ angular
 	}
 
 
+	/**
+	 * getLastTweets
+	 * will get the last tweet about the city and current weather
+	 * 
+	 */
+	this.getLastTweets = function (city, cb) {
+
+		if ( ! city ) return false;
+
+		$scope.tweets = [];
+
+		$http.get('/getLastTweets', {
+			params: {
+				tags: city.name + ' ' + city.weather.weather[0].main,
+			}
+		})
+		.then( function (response) {
+
+			if ( ! response || response.status == 500 ) return false;
+
+			// Regex the tags 
+			for ( var i = 0; i < response.data.statuses.length; i++ ) {
+				
+				var text = response.data.statuses[i].text;
+
+				text = text.replace(/#\w+/g, function(match) {
+					return '<span>'+match+'</span>';
+				})
+
+				text = $sce.trustAsHtml(text);
+
+				$scope.tweets.push(response.data.statuses[i]);
+				$scope.tweets[i].formattedText = text;
+			};
+
+		})
+
+	}
 
 	/**
 	 * getCityPicture
@@ -276,7 +321,6 @@ angular
 		.then( function gettedWeather(response) {
 
 			result.weather = response.data;
-			console.log(result.weather);
 			return result;
 			
 		})
@@ -332,6 +376,33 @@ angular
 	}
 
 
+	this.getUserWeather = function (position) {
+
+		map.panTo(new google.maps.LatLng(position.coords.latitude, position.coords.longitude));
+
+        map.addListener('idle', function () {
+
+			$http.get('/getWeather', {
+				params: {
+					lat: position.coords.latitude,
+					lng: position.coords.longitude,
+				}
+			})
+			.then( function gettedWeather(response) {
+
+				if ( response.status != 200 ) return false;
+
+				$scope.userWeather = response.data;
+
+			})
+
+        });
+
+
+
+	}
+
+
 	/**
 	 * Init Gmap
 	 * 
@@ -359,6 +430,10 @@ angular
             	searching = false;
             	self.getBoundsCities();
             });
+
+			if (navigator.geolocation) {
+				navigator.geolocation.watchPosition(self.getUserWeather, null,{ enableHighAccuracy: false });
+			}
 
 
             // trigger the first search

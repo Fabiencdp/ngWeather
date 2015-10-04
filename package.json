@@ -14,11 +14,13 @@
     "jade": "~1.11.0",
     "mocha": "^2.3.3",
     "morgan": "~1.6.1",
+    "node-twitter-api": "^1.6.0",
     "request": "^2.64.0",
     "request-promise": "^0.4.3",
     "serve-favicon": "~2.3.0",
     "should-http": "0.0.4",
-    "supertest": "^1.1.0"
+    "supertest": "^1.1.0",
+    "twitter": "^1.2.5"
   },
   "devDependencies": {
     "should": "^7.1.0"

@@ -56,6 +56,47 @@ html{
 
 
 
+.user-weather{
+	display: block;
+	position: fixed;
+	z-index: 2;
+	bottom: 35px;
+	left: 35px;
+	padding: 20px 40px;
+	background-color: #ddd;
+	.box-shadow(0 0 5px #333);
+	h4{
+		margin-top: 0;
+	}
+	.temp{
+		font-size: 35px;
+		display: block;
+	}
+	i.wi{
+		font-size: 55px;
+	}
+	@media screen and(max-width: @screen-xs-max) {
+		width: 100%;
+		position: relative;
+		left: inherit;
+		bottom: inherit;
+		margin-top: 77px;
+		h4{
+			float: left;
+			margin-right: 35px;
+			width: 50%;
+		}
+		i.wi{
+			font-size: 25px;
+		}
+		.temp{
+			font-size: 21px;
+		}
+	}
+}
+
+
+
 .sidebar{
 	height: auto;
 	min-height: 100%;
@@ -219,6 +260,21 @@ html{
 				}
 				&:last-child{
 					border: 0 none;
+				}
+			}
+		}
+	}
+
+	.last-tweets{
+		ul{
+			list-style: none;
+			padding: 0;
+			li{
+				padding: 8px 0px;
+				border-bottom: 1px solid white;
+				span{
+					color: @brand-info;
+					margin-right: 5px;
 				}
 			}
 		}

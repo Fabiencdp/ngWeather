@@ -21,5 +21,14 @@ module.exports = {
 	geonames: {
 		clientId: 'fabien.gane@collectifdontpanic.com',
 		endpoint: 'http://api.geonames.org/',
-	}
+	},
+
+
+	twitter: {
+		clientId: 'cu2AmfnGFlaSyTLkIyi9R5yKX',
+		clientSecret: 'smsc2waLCZz1Z2yOiAhVmIFHeWCnYJpUUJlC9G0UX3AzLLUXJq',
+		tokenKey: '381259103-scioldS7pupVo5PTzeSc57qbKh1MHFotLsaWm60w',
+		tokenSecret: 'mI4rS4zCUt9SOeEpuEvZ6b8krvsyobhdmDXJU2fwbZNtg',
+	},
+
 }
