@@ -1,5 +1,6 @@
 
 
+@import 'vars.less';
 @import 'mixins.less';
 @import '../libs/weather-icons/less/weather-icons.min.less';
 
@@ -7,7 +8,7 @@
 /* RESET */
 html{
 	body{
-		font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+		font: 14px "Lato", Helvetica, Arial, sans-serif;
 	}
 
 	.row{
@@ -33,6 +34,21 @@ html{
 	.responsive-img{
 		background-position: center center;
 		background-size: cover;
+		&.animate-show{
+			.opacity(0);
+			&.loaded{
+				.transition(2s);
+				.opacity(1);
+			}
+		}
+	}
+
+	hr{
+		border-width: 2px;
+	}
+
+	*[ng-click]{
+		cursor: pointer;
 	}
 
 
@@ -49,17 +65,56 @@ html{
 	color: white;
 	box-shadow: 0 0 5px black;
 
-	@sidebar-header-height: 350px;
+
+	.cities-list{
+		ul{
+			padding: 0;
+			list-style: none;
+			li{
+				border-bottom: 1px solid white;
+				padding: 0px 15px 10px;
+				a{
+					color: white;
+					display: block;
+					padding: 10px 0;
+					i.wi{
+						width: 18px;
+						.opacity(0);
+						&.loaded{
+							.opacity(1);
+							.transition(1s);
+						}
+					}
+				}
+				span.temp{
+					.opacity(0);
+					&.loaded{
+						.opacity(1);
+						.transition(1s);
+					}
+				}
+			}
+		}
+	}
+
+	
+	.back-to-list{
+		padding: 10px 15px;
+		color: white;
+		position: relative;
+		z-index: 2;
+		display: block;
+	}
 
 	.weather-header{
-
 		height: @sidebar-header-height;
 		overflow: hidden;
 		border-bottom: 1px solid white;
 		margin-bottom: 20px;
 
 		.content{
-			padding-top: 120px;
+			height: @sidebar-header-height;
+			padding-top: 100px;
 			position: relative;
 			z-index: 1;
 		}
@@ -85,6 +140,12 @@ html{
 			i{
 				font-size: 65px;
 			}
+			@media screen and (max-width: @screen-sm-max) {
+
+				i{
+					font-size: 45px;
+				}
+			}
 		}
 		.weather-info{
 			.current-temp{
@@ -97,26 +158,31 @@ html{
 			}
 		}
 
-		.bg-image{
-			width: 100%;
-			height: @sidebar-header-height;
-			position: absolute;
-			top: 0;
-			left: 0;
-			z-index: 0;
-			border-bottom: 2px solid white;
-			.blur(00px);
-			.box-shadow(0 0 250px black inset);
-			.transition();
-		}
 		&:hover,&:focus{
 			.bg-image{
-				.blur(1px);
+				.blur(2px);
 				.opacity(0.8);
 				.transition();
 			}
 		}
 		
+	}
+
+
+	.bg-image{
+		width: 100%;
+		height: @sidebar-header-height;
+		position: absolute;
+		top: 0;
+		left: 0;
+		z-index: 0;
+		border-bottom: 2px solid white;
+		.blur(0px);
+		.box-shadow(0 0 250px black inset);
+		.transition();
+		&.bg-image-xs{
+			display: none;
+		}
 	}
 
 	.weather-details{
@@ -159,7 +225,48 @@ html{
 		}
 	}
 
+	.error{
+		padding-top: 250px;
+	}
+
+	// Screen XS
+	@media screen and (max-width: @screen-xs-max) {
+		height: @sidebar-header-height-xs;
+		min-height: inherit;
+		position: fixed;
+		overflow: auto;
+		bottom: 0;
+		left: 0;
+		.weather-header{
+			border-bottom: 0 none;
+			height: @sidebar-header-height-xs;
+			.content{
+				height: @sidebar-header-height-xs;
+				padding-top: 0;
+			}
+		}
+		
+		.bg-image.bg-image-xs{
+			display: block;
+			position: absolute;
+			top: 0;
+			width: 100%;
+			height: @sidebar-header-height-xs;
+			z-index: -1;
+			border-bottom: 2px solid white;
+		}
 	
+		.weather-details{
+			
+			&.temp-details{
+				h4{
+					display: none;
+				}
+				margin-top: 115px;
+			}
+		}
+
+	}
 
 }
 
@@ -186,6 +293,7 @@ html{
 	    height: 36px;
 	    text-align: center;
 	    line-height: 37px;
+	    cursor: pointer;
 	}
 
 }
@@ -208,84 +316,6 @@ html{
 	}
 }
 
-.map-infowindow{
-	position: relative;
-    height: 100%;
-    padding-bottom: 25px;
-    overflow: hidden;
-	.weather-icon{
-		width: 110px;
-		border-right: 1px solid #ddd;
-		i{
-			font-size: 85px;
-		}
-	}
-	.loading-text{
-		padding: 0 15px;
-	}
-	.weather-info{
-		padding: 0 0 0 15px;
-		width: 410px;
-		.current-temp{
-			margin-top: 0;
-			font-size: 25px;
-		}
-		.description{
-			margin-top: 0;
-		}
-		.detail{
-			margin-right: 5px;
-			padding-right: 6px;
-			border-right: 1px solid #ddd;
-			&:last-child{
-				border: 0 none;
-			}
-		}
-	}
-
-	.forecast{
-		ul.forecast-list{
-			list-style: none;
-			padding-left: 0;
-			li{
-				float: left;
-				margin-right: 5px;
-				padding-right: 6px;
-				padding-left: 6px;
-				border-right: 1px solid #ddd;
-				i.wi{
-					margin-top: 5px;
-					font-size: 22px;
-				}
-				.day-details{
-					font-size: 13px;
-					font-weight: 400;
-				}
-				&:last-child{
-					border: 0 none;
-				}
-			}
-		}
-	}
-
-	.content{
-		background-color: fade(#000, 60%);
-		padding: 10px;
-		position: relative;
-		z-index: 1;
-		color: white;
-	}
-
-	.bg-image{
-		position: absolute;
-		top: 0;
-		left: 0;
-		z-index: 0;
-		width: 100%;
-		height: 100%;
-	}
-
-}
 
 
 // Icons 

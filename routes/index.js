@@ -4,6 +4,7 @@ var router = express.Router();
 var request = require('request-promise');
 
 
+
 /**
  * Index
  * Get homepage
@@ -30,17 +31,17 @@ router.get('/', function(req, res, next) {
 router.get('/getWeather', function(req, res, next) {
 
 	request({
-		url: 'http://api.openweathermap.org/data/2.5/weather',
+		url: req.app.locals.config.openWeather.endpoint + 'weather',
 		qs: {
 			q: req.query.name,
 			units: 'metric',
 		}
-	}).then( function (response) {
+	}).then( function getWeather(response) {
 
 		return res.send(response);
 
 	})
-	.catch( function onError (err) {
+	.catch( function getWeatherError(err) {
 		return res.status(406).send(err);
 	})
 
@@ -59,20 +60,20 @@ router.get('/getWeather', function(req, res, next) {
 router.get('/getForecast', function(req, res, next) {
 
 	request({
-		url: 'http://api.openweathermap.org/data/2.5/forecast/daily',
+		url: req.app.locals.config.openWeather.endpoint + 'forecast/daily',
 		qs: {
 			q: req.query.name,
 			units: 'metric',
 			cnt: 5,
 		}
-	}).then( function (response) {
+	}).then( function foundForecast(response) {
 
 		if ( ! response ) return res.status(204);
 
 		return res.send(response);
 
 	})
-	.catch( function onError (err) {
+	.catch( function foundForecastError(err) {
 		return res.status(406).send(err);
 	})
 
@@ -91,7 +92,7 @@ router.get('/getForecast', function(req, res, next) {
 router.get('/getCities', function(req, res, next) {
 
 	request({
-		url: 'http://api.geonames.org/citiesJSON',
+		url: req.app.locals.config.geonames.endpoint + 'citiesJSON',
 		qs: {
 			north: req.query.north,
 			south: req.query.south,
@@ -99,19 +100,20 @@ router.get('/getCities', function(req, res, next) {
 			west: req.query.west,
 			lang: 'en',
 			maxRows: req.query.maxRows,
-			username: 'fabien.gane@collectifdontpanic.com',
+			username: req.app.locals.config.geonames.clientId,
 		}
 	}).then( function foundCities(response) {
 
 		return res.send(response);
 
 	})
-	.catch( function onError(err) {
+	.catch( function foundCitiesError(err) {
 		return res.status(406).send(err);
 	})
 
 
 });
+
 
 
 /**
@@ -121,27 +123,27 @@ router.get('/getCities', function(req, res, next) {
  * @return {object}       cities object
  */
 router.get('/getPicture', function(req, res, next) {
-			
+
 	var params = {
 		method: 'flickr.photos.search',
-		group_id: '1463451@N25',
+		group_id: req.app.locals.config.flickr.groupId,
 		text: req.query.city + ' ' + req.query.tags,
 		tag: req.query.tags,
 		per_page: 1,
 		privacy_filter: 1,
 		extras: 'url_m',
 		sort: 'revelance',
-		api_key: '48f41a5d23bc5dc706a30882681d8224',
+		api_key: req.app.locals.config.flickr.clientId,
 		format: 'json',
 		nojsoncallback: 1,
 	}
 
 
 	request({
-		url: 'https://api.flickr.com/services/rest/',
+		url: req.app.locals.config.flickr.endpoint,
 		qs: params
 	})
-	.then( function foundCities(response) {
+	.then( function getPicture(response) {
 
 		var response = JSON.parse(response);
 
@@ -161,16 +163,16 @@ router.get('/getPicture', function(req, res, next) {
 
 
 			request({
-				url: 'https://api.flickr.com/services/rest/',
+				url: req.app.locals.config.flickr.endpoint,
 				qs: params
 			})
-			.then( function foundCities(response) {
+			.then( function getOtherPicture(response) {
 
 				return res.send(response);
 
 			})	
-			.catch( function onError(err) {
-				res.status(406).send(err);
+			.catch( function getOtherPictureError(err) {
+				res.status(406);
 			})
 			
 		} else {
@@ -180,8 +182,8 @@ router.get('/getPicture', function(req, res, next) {
 		} 
 
 	})
-	.catch( function onError(err) {
-		return res.status(406).send(err);
+	.catch( function getPictureError(err) {
+		return res.status(406);
 	})
 
 

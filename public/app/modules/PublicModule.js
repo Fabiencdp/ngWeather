@@ -7,6 +7,7 @@
 angular
 .module('PublicModule', [
 	'ngAutocomplete',
+	'ngAnimate',
 	'uiGmapgoogle-maps',
 ])
 
@@ -31,3 +32,36 @@ angular
 
 
 })
+
+
+
+angular
+.module('PublicModule')
+.directive('fadeIn', function($animate, $timeout) {
+    return {
+        restrict: 'A',
+        link: function(scope, element, attrs){
+
+            element.removeClass("loaded");
+
+            element[0].style.backgroundImage = '';
+           
+            var src = attrs.fadeIn;
+            var dlImg = new Image();
+
+            // Update on load
+			dlImg.onload = function () {
+				
+				element[0].style.backgroundImage = "url('"+src+"')";
+
+                $timeout(function () {
+                	element.addClass('loaded');
+                }, 100);
+	     
+			};
+
+			dlImg.src = src;
+
+        }
+    }
+});

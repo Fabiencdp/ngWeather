@@ -14,7 +14,7 @@
 			<form accept-charset="utf-8" class="col-xs-9" ng-submit="home.search(keyword)">
 
 				<div class="form-group col-xs-8">
-					<input type="text" name="" value="" class="form-control" ng-autocomplete ng-model="keyword" placeholder="Find current weather at..." />
+					<input type="text" name="" value="" class="form-control" ng-autocomplete ng-model="keyword" placeholder="Find current weather near..." />
 				</div>
 
 				<button class="btn btn-success" type="submit">
@@ -29,7 +29,7 @@
 
 	<div class="row">
 
-		<div class="map col-sm-9 force-large">
+		<div class="map col-xs-12 col-sm-9 force-large">
 		    <ui-gmap-google-map 
 		    	center='map.center' 
 		    	zoom='map.zoom' 
@@ -37,15 +37,6 @@
 		    	events="map.events"
 		    	style="height: 100%;">
 
-					<!-- INFO WINDOW -->
-			        <ui-gmap-window 
-			        	coords="selectedMarker" 
-			        	show="true" 
-			        	closeClick="closeClick()"
-			        	templateUrl="map.infoWindow.templateUrl"
-			        	templateParameter="map.infoWindow.templateParameter">
-			        </ui-gmap-window>
-			
 					<!-- MARKERS -->
 				    <ui-gmap-markers
 			            models='markers'
@@ -62,13 +53,35 @@
 
 
 
-		<div class="sidebar col-sm-3 pull-right force-large">
+		<div class="sidebar col-sm-3 col-xs-12 pull-right force-large">
+
+			<!-- CITIES LIST -->
+			<div class="cities-list" ng-show="! selected.name">
+				
+				<ul>
+					<li ng-repeat="city in markers track by $index" class="col-xs-12">
+						<a ng-click="home.onClick(city)">
+							<i class="wi icon-{{city.weather.weather[0].icon}} margin" ng-class="{'loaded' : city.weather.weather[0].icon}"></i><b>{{city.name}}</b>
+						</a>
+						<span class="temp" ng-class="{'loaded' : city.weather.weather[0].icon}">{{city.weather.main.temp}} °</span>
+					</li>
+				</ul>
+
+			</div>
+
 			
-			<div ng-show="selected">
+			<div ng-show="selected.name && ! selected.error">
 
-			<div class="weather-header">
+			<!-- XS background image -->
+			<div ng-if="selected.picture" class="bg-image bg-image-xs responsive-img animate-show col-xs-12 hidden-sm hidden-md hidden-lg" fade-in="{{selected.picture.url_m}}" >
+			</div>
 
-				<div class="content col-sm-12">
+			<!-- HEADER -->
+			<div class="weather-header col-xs-8 col-sm-12">
+
+				<a class="back-to-list" ng-click="home.clearSelected()"><i class="fa fa-arrow-left margin"></i>Cities</a>
+
+				<div class="content col-xs-12">
 				
 					<h3 class="city-name">{{selected.name}}</h3>	
 					<h5>{{today | date:'EEEE, d MMMM yyyy'}} <span class="pull-right">{{today | date:'HH:mm'}}</span></h5>
@@ -76,7 +89,7 @@
 					<hr>	
 
 					<!-- ICON -->
-					<div class="weather-icon col-sm-4 text-center force-left">
+					<div class="weather-icon col-xs-6 col-sm-4 text-center force-left">
 						<span class="loading" ng-show="selected.loading">
 							<i ng-show="selected.loading" class="fa fa-spinner fa-spin"></i>
 						</span>
@@ -88,7 +101,7 @@
 					<div class="loading-text" ng-show="selected.loading">Loading weather datas...</div>
 
 					<!-- WEATHER DETAILS -->
-					<div class="weather-info col-sm-8 pull-left" ng-show="! selected.loading && ! selected.error">
+					<div class="weather-info col-xs-6 col-sm-8 pull-left" ng-show="! selected.loading && ! selected.error">
 
 						<h3 class="current-temp">{{selected.weather.main.temp}} °</h3>
 				        <h5 class="description">{{selected.weather.weather[0].description}}</h5>
@@ -97,34 +110,57 @@
 
 				</div>
 
-				<div ng-if="selected.picture" class="bg-image responsive-img" style="background-image: url('{{selected.picture.url_m}}')"></div>
+				<!-- background image -->
+				<div ng-if="selected.picture" class="hidden-xs">
+					<div class="bg-image responsive-img animate-show" 
+						 fade-in="{{selected.picture.url_m}}" >
+					</div>
+				</div>
+
+			</div>
+
+
+		    <div class="clearfix hidden-xs"></div>
+	
+
+			<!-- MAIN DETAILS -->
+			<div class="content col-xs-4 col-sm-12">
+
+				<!-- details -->
+				<div class="weather-details temp-details pull-right-xs">
+					<h4>Weather détails</h4>
+					<div class="detail humidity"><i class="glyphicon glyphicon-tint margin"></i>Humidity {{selected.weather.main.humidity}}%</div>
+					<div class="detail pressure"><i class="glyphicon glyphicon-dashboard margin"></i>Pressure {{selected.weather.main.pressure | number : 2}} hpa</div>
+					<div class="detail temp"><i class="ionicons ion-thermometer margin"></i> Min/Max {{selected.weather.main.temp_min}}° / {{selected.weather.main.temp_max}}°</div>
+				</div>
 
 			</div>
 
 		    <div class="clearfix"></div>
-	
-			<div class="content col-sm-12">
+			<hr style="margin-bottom: 10px;" class="hidden-xs">
 
-				<div class="weather-details">
-					<h4>Weather détails</h4>
-					<div class="detail humidity"><i class="glyphicon glyphicon-tint margin"></i>Humidity {{selected.weather.main.humidity}}%</div>
-					<div class="detail pressure"><i class="glyphicon glyphicon-dashboard margin"></i>Pressure {{selected.weather.main.pressure | number : 2}} hpa</div>
+			<div class="content col-xs-12 col-sm-12">
+
+				<!-- wind -->
+				<div class="weather-details weather-wind">
+					<h4>Wind</h4>
+					<div class="detail wind-deg"><i class="fa fa-arrow-up margin" style="transform: rotate({{selected.weather.wind.deg}}deg);"></i>{{selected.weather.wind.deg}}°</div>
+					<div class="detail wind-speed"><i class="glyphicon glyphicon-dashboard margin"></i>{{(selected.weather.wind.speed * 3600) / 1000}} Km/h</div>
 					<div class="detail temp"><i class="ionicons ion-thermometer margin"></i> Min/Max {{selected.weather.main.temp_min}}° / {{selected.weather.main.temp_max}}</div>
 				</div>
-
 
 			    <div class="clearfix"></div>
 				<hr style="margin-bottom: 10px;">
 
 
-				<!-- FORECAST -->
+				<!-- forecast -->
 				<div class="forecast">
 					<h4>5 days forecast</h4>
 					
 					<ul class="forecast-list">
 						
 						<li ng-repeat="day in selected.forecast.list track by $index">
-							<h5 class="day-name">{{day.dt * 1000 | date:'EEEE'}}, {{day.dt * 1000 | date:'d'}}</h5>
+							<h5 class="day-name"><b>{{day.dt * 1000 | date:'EEEE'}}, {{day.dt * 1000 | date:'d'}}</b></h5>
 							<div class="day-icon pull-left">
 								<i class="wi icon-{{day.weather[0].icon}} margin"></i> 
 							</div>
@@ -145,9 +181,13 @@
 
 			</div>
 
+			<!-- on error -->
+			<div ng-if="selected.error" class="error col-xs-10 center text-center">
+				<h3><i class="fa fa-frown-o margin"></i>Sorry, ngMeteo can't found weather data at this location...</h3>
+			</div>
+
+
 			<div class="clearfix"></div>
-
-
 
 		
 		</div>

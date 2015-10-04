@@ -6,17 +6,117 @@ angular
 .module('PublicModule')
 .controller('HomeController', ['$scope', '$http', 'uiGmapIsReady', function( $scope, $http, uiGmapIsReady ) {
 	
+
+	// Define some variables
 	var self = this;
 	var map;
 	var searching = false;
-
-
-	// Define autocomplete
+	var geocoder = new google.maps.Geocoder();
+	
 	$scope.keyword = '';
 	$scope.markers = [];
-	$scope.windows = [];
+	$scope.list = [];
+	$scope.selected = {
+		picture: false,
 
+	};
 	$scope.today = new Date();
+
+
+
+
+	/**
+	 * search
+	 * run reverse geocoding to set map center and zoom level
+	 * 
+	 */
+	this.search = function (keyword) {
+
+		geocoder.geocode({'address': keyword}, function(results, status) {
+
+			if ( status !== google.maps.GeocoderStatus.OK || ! results ) {
+				$scope.searchError = true;
+				return false;
+			} 
+
+			$scope.searchError = false;
+
+			var result = results[0];
+
+			var zoom = 8;
+
+			if ( result.types[0] && result.types[0] == "locality" ) {
+				zoom = 11;
+			} else if ( result.types[0] && result.types[0] == "country" ) {
+				zoom = 6;
+			}
+
+			map.setCenter(results[0].geometry.location);
+			map.setZoom(zoom);
+		
+		});
+
+	}
+
+
+
+	/**
+	 * onClick
+	 * default onClick event
+	 * Will trigger all the stuff
+	 * 
+	 */
+	this.onClick = function (marker) {
+
+		if ( ! marker ) return false;
+
+		// Clicked from list or map marker
+		if ( 'model' in marker ) $scope.selected = marker = marker.model;
+		else $scope.selected = marker;
+
+		$scope.selected.picture = false;
+
+		// update marker
+		self.getCityWeather(marker, function (weatherDatas) {
+
+			// get the index
+			for (var i = 0; i < $scope.markers.length; i++) {
+				if ( $scope.markers[i].idKey == marker.idKey ) index = i;
+			};
+			
+			$scope.selected.loading = false;
+
+			if ( ! weatherDatas ) {
+				$scope.selected.error = true;
+			} else {
+				$scope.selected.weather = weatherDatas.weather;
+				$scope.selected.forecast = weatherDatas.forecast;
+			}
+
+			// Load a picture from flickr
+			self.getCityPicture(marker, function (pictureDatas) {
+
+				if ( pictureDatas && pictureDatas.photos.length !== 0 ) {
+					$scope.selected.picture = pictureDatas.photos.photo[0];
+				}
+				
+			})
+
+		})
+
+	}
+
+
+
+	/**
+	 * clearSelected
+	 * remove selected to go back to the list
+	 * 
+	 */
+	this.clearSelected = function () {
+		$scope.selected = {};
+	}
+
 
 
 	/**
@@ -27,10 +127,12 @@ angular
 	 */
 	this.getBoundsCities = function () {
 
+		// Avoid run the function twice when user interact on the map
 		if ( ! map || searching ) return false;
 
 		// Reset all
 		$scope.markers.length = 0;
+		$scope.list.length = 0;
 
 		// Get most populated cities in current bounds
 		// Max Rows is defined to have a good numbers of markers in the bounds
@@ -41,7 +143,7 @@ angular
 				east: map.getBounds().getNorthEast().lng(),
 				south: map.getBounds().getSouthWest().lat(),
 				west: map.getBounds().getSouthWest().lng(),
-				maxRows: 30 - ( map.getZoom() * 2 ),
+				maxRows: 30 - ( map.getZoom() * 3 ),
 			}
 		})
 		.then(function (response) {
@@ -56,7 +158,7 @@ angular
 			for ( var i = 0; i < results.length;  i++ ) {
 
 				// Create markers
-				var marker = {
+				markers.push({
 					id: i,
 					idKey: i,
 					latitude: results[i].lat,
@@ -71,11 +173,11 @@ angular
 						labelClass: 'marker-icon',
 		              	labelInBackground: false,
 		          	}
-				}
-
-				markers.push(marker);
+				});
 
 			}
+
+			$scope.markers = $scope.list = markers;
 
 			return markers;
 
@@ -86,32 +188,33 @@ angular
 			function getAll (markers) {
 
 				var i = 0;
-				
-				function next (i) {
-					
-					// update marker
-					self.getCityWeather(results[i], function (weatherDatas) {
-						
-						// TODO fix that :
-						// results is not defined
-						// $scope.markers[i].loading is not defined
 
-						$scope.markers.push(markers[i]);
-			
-						$scope.markers[i].loading = false;
+				function next (i) {
+
+					// update marker
+					self.getCityWeather(markers[i], function (weatherDatas) {
+					
+						// Avoid error when markers array was reseted
+						if ( markers.length == 0 ) return;
+					
+						markers[i].loading = false;
 
 						if ( ! weatherDatas ) {
-							$scope.markers[i].error = true;
+							markers[i].error = true;
 						} else {		
-							$scope.markers[i].weather = weatherDatas.weather;
-							$scope.markers[i].forecast = weatherDatas.forecast;
+							markers[i].weather = weatherDatas.weather;
+							markers[i].forecast = weatherDatas.forecast;
 							var icon = '<i class="wi icon-' + weatherDatas.weather.weather[0].icon + '"></i>';
-							$scope.markers[i].options.labelContent = icon;
+							markers[i].options.labelContent = icon;
 						}
+
+						// Update scope
+						$scope.markers[i] = $scope.list[i] = markers[i];
 
 						i++;
 
-						if ( i >= results.length ) return results;
+						// Stop the loop
+						if ( i >= markers.length ) return;
 						
 						next(i);
 
@@ -122,8 +225,7 @@ angular
 				next(i);
 			}
 
-			if ( markers.length > 0 ) getAll(markers);
-			
+			if ( markers.length !== 0 ) getAll(markers);
 
 		});
 
@@ -131,7 +233,15 @@ angular
 
 
 
+	/**
+	 * getCityPicture
+	 * will get one picture of the selected cities
+	 * We use flickr group 'Project Weather' to find nice pictures
+	 * 
+	 */
 	this.getCityPicture = function (city, cb) {
+
+		if ( ! city ) return false;
 
 		$http.get('/getPicture', {
 			params: {
@@ -154,6 +264,8 @@ angular
 	 */
 	this.getCityWeather = function (city, cb) {
 
+		if ( ! city ) return false;
+
 		var result = {};
 
 		$http.get('/getWeather', {
@@ -164,6 +276,7 @@ angular
 		.then( function gettedWeather(response) {
 
 			result.weather = response.data;
+			console.log(result.weather);
 			return result;
 			
 		})
@@ -189,39 +302,7 @@ angular
 
 
 
-	var geocoder = new google.maps.Geocoder();
 
-	this.search = function (keyword) {
-
-		geocoder.geocode({'address': keyword}, function(results, status) {
-
-			if ( status !== google.maps.GeocoderStatus.OK || ! results ) {
-				$scope.searchError = true;
-				return false;
-			} 
-
-			$scope.searchError = false;
-
-			var result = results[0];
-
-			var zoom = 8;
-
-			if ( result.types[0] && result.types[0] == "locality" ) {
-				zoom = 11;
-			} else if ( result.types[0] && result.types[0] == "country" ) {
-				zoom = 6;
-			}
-
-			map.setCenter(results[0].geometry.location);
-			map.setZoom(zoom);
-		
-
-
-
-		});
-
-		
-	}
 
 
 	// Init map
@@ -242,53 +323,10 @@ angular
 		        style: google.maps.ZoomControlStyle.LARGE
 		    },
 		},
-		infoWindow: {
-			show: false,
-			templateUrl: '/templates/infoWindowContent.html',
-			templateParameter: {},
-		},
         markers: {
             events: {
-            	click: function (marker) {
-
-            		$scope.selected = marker.model;
-            		$scope.map.infoWindow.templateParameter = marker.model;
-
-					// update marker
-					self.getCityWeather(marker.model, function (weatherDatas) {
-
-						// get the index
-						for (var i = 0; i < $scope.markers.length; i++) {
-							if ( $scope.markers[i].idKey == marker.model.idKey ) index = i;
-						};
-						
-						$scope.selected.loading = false;
-
-						if ( ! weatherDatas ) {
-							$scope.selected.error = true;
-						} else {		
-							$scope.selected.weather = weatherDatas.weather;
-							$scope.selected.forecast = weatherDatas.forecast;
-						}
-
-	            		// Load a picture from flickr
-	            		if ( ! marker.model.picture ) {
-
-							self.getCityPicture(marker.model, function (pictureDatas) {
-
-								if ( pictureDatas && pictureDatas.photos.length !== 0 ) {
-									$scope.selected.picture = pictureDatas.photos.photo[0];
-								}
-								
-							})
-
-	            		}
-
-					})
-
-            	}
+            	click: self.onClick
             }
-
         },
 
 	}
@@ -322,9 +360,16 @@ angular
             	self.getBoundsCities();
             });
 
+
+            // trigger the first search
+            google.maps.event.trigger(map,'idle');
+
         });
 
     });
+
+
+
 
 
 }])
