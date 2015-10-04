@@ -81,7 +81,7 @@
 
 				<a class="back-to-list" ng-click="home.clearSelected()"><i class="fa fa-arrow-left margin"></i>Cities</a>
 
-				<div class="content col-xs-12">
+				<div class="content col-xs-12 force-large-xs">
 				
 					<h3 class="city-name">{{selected.name}}</h3>	
 					<h5>{{today | date:'EEEE, d MMMM yyyy'}} <span class="pull-right">{{today | date:'HH:mm'}}</span></h5>
@@ -183,7 +183,7 @@
 
 			<!-- on error -->
 			<div ng-if="selected.error" class="error col-xs-10 center text-center">
-				<h3><i class="fa fa-frown-o margin"></i>Sorry, ngMeteo can't found weather data at this location...</h3>
+				<h3><i class="fa fa-frown-o margin"></i>Sorry, ngWeather can't found weather data at this location...</h3>
 			</div>
 
 

@@ -124,7 +124,8 @@ html{
 		}
 
 		.loading-text{
-			padding: 0 15px;
+		    padding: 0 15px;
+		    display: inline-block;
 		}
 
 		.city-name{
@@ -139,13 +140,11 @@ html{
 			padding-top: 5px;
 			i{
 				font-size: 65px;
-			}
-			@media screen and (max-width: @screen-sm-max) {
+				@media screen and (max-width: 100px) {font-size: 45px;}
+				@media screen and (max-width: @screen-sm-max) {font-size: 45px;}
 
-				i{
-					font-size: 45px;
-				}
 			}
+	
 		}
 		.weather-info{
 			.current-temp{
