@@ -1,0 +1,119 @@
+/*
+* Custom mixins function
+*
+*
+*/
+/**
+ * Just a handful of helper mixins for doing cool CSS animations.
+ */
+.centered,
+.center {
+  margin-right: auto;
+  margin-left: auto;
+  float: none;
+  display: block;
+}
+.margin-left {
+  margin-right: 0px;
+  margin-left: 8px;
+}
+.margin-left.margin-2x {
+  margin-left: 16px;
+}
+.margin-left.margin-3x {
+  margin-left: 24px;
+}
+.margin-right,
+.margin {
+  margin-right: 8px;
+  margin-left: 0px;
+}
+.margin-right.margin-2x,
+.margin.margin-2x {
+  margin-right: 16px;
+}
+.margin-right.margin-3x,
+.margin.margin-3x {
+  margin-right: 24px;
+}
+.table-cell {
+  display: table-cell;
+  float: none;
+}
+.table-cell.top {
+  vertical-align: top;
+}
+.table-cell.middle {
+  vertical-align: middle;
+}
+.table-cell.bottom {
+  vertical-align: bottom;
+}
+.force-left {
+  padding-left: 0 !important;
+  padding-right: 15px !important;
+}
+.force-right {
+  padding-right: 0 !important;
+  padding-left: 15px !important;
+}
+.force-large {
+  padding-left: 0 !important;
+  padding-right: 0px !important;
+}
+@media screen and (max-width: 767px) {
+  .force-left-xs {
+    padding-left: 0 !important;
+    padding-right: 15px !important;
+  }
+}
+@media screen and (max-width: 767px) {
+  .force-right-xs {
+    padding-right: 0 !important;
+    padding-left: 15px !important;
+  }
+}
+@media screen and (max-width: 767px) {
+  .force-large-xs {
+    padding-left: 0 !important;
+    padding-right: 0px !important;
+  }
+}
+@media screen and (max-width: 991px) {
+  .force-left-sm {
+    padding-left: 0 !important;
+    padding-right: 15px !important;
+  }
+}
+@media screen and (max-width: 991px) {
+  .force-right-sm {
+    padding-right: 0 !important;
+    padding-left: 15px !important;
+  }
+}
+@media screen and (max-width: 991px) {
+  .force-large-sm {
+    padding-left: 0 !important;
+    padding-right: 0px !important;
+  }
+}
+@media screen and (max-width: 767px) {
+  .pull-left-xs {
+    float: left !important;
+  }
+}
+@media screen and (max-width: 767px) {
+  .pull-right-xs {
+    float: right !important;
+  }
+}
+@media screen and (max-width: 991px) {
+  .pull-left-sm {
+    float: left !important;
+  }
+}
+@media screen and (max-width: 991px) {
+  .pull-right-sm {
+    float: right !important;
+  }
+}

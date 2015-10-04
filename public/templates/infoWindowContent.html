@@ -1,0 +1,71 @@
+<div class="map-infowindow">
+
+	<div class="content">
+		
+		<h3 class="city-name">{{templateParameter.name}}</h3>	
+
+		<hr>	
+
+		<!-- ICON -->
+		<div class="weather-icon pull-left">
+			<span class="loading" ng-show="templateParameter.loading">
+				<i ng-show="templateParameter.loading" class="fa fa-spinner fa-spin"></i>
+			</span>
+			
+			<i class="wi icon-{{templateParameter.weather.weather[0].icon}}"></i>
+		</div>
+
+		
+		<div class="loading-text pull-left" ng-show="templateParameter.loading">Loading weather datas...</div>
+
+		<!-- WEATHER DETAILS -->
+		<div class="weather-info pull-left" ng-show="! templateParameter.loading && ! templateParameter.error">
+
+			<h3 class="current-temp">{{templateParameter.weather.main.temp}} °</h3>
+	        <h5 class="description">{{templateParameter.weather.weather[0].description}}</h5>
+
+			<span class="detail humidity">Humidity {{templateParameter.weather.main.humidity}}%</span>
+			<span class="detail pressure">Pressure {{templateParameter.weather.main.pressure | number : 2}} hpa</span>
+			<span class="detail temp max">Min {{templateParameter.weather.main.temp_min}} °</span>
+			<span class="detail temp min">Max {{templateParameter.weather.main.temp_max}} °</span>
+
+	    </div>
+
+
+	    <div class="clearfix"></div>
+		<hr>
+
+
+		<!-- FORECAST -->
+		<div class="forecast">
+			
+			<ul class="forecast-list">
+				
+				<li ng-repeat="day in templateParameter.forecast.list track by $index">
+					<h6>{{day.dt * 1000 | date:'EEEE'}}, {{day.dt * 1000 | date:'d'}}</h6>
+					<div class="day-icon pull-left">
+						<i class="wi icon-{{day.weather[0].icon}} margin"></i> 
+					</div>
+					<div class="day-details pull-left">
+						<div>Min {{day.temp.min | number:0 }}°</div>
+						<div>Max {{day.temp.max | number:0 }}°</div>
+					</div>
+
+				</li>
+
+			</ul>
+
+		</div>
+
+		<div class="clearfix"></div>
+
+	</div>
+
+	<div class="clearfix"></div>
+
+	<div class="bg-image responsive-img" style="background-image: url('//c1.staticflickr.com/{{templateParameter.picture.farm}}/{{templateParameter.picture.server}}/{{templateParameter.picture.id}}_{{templateParameter.picture.secret}}_n.jpg')">
+	</div>
+
+	
+
+</div>
