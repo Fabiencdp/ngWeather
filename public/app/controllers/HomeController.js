@@ -12,6 +12,7 @@ angular
 	var map;
 	var searching = false;
 	var geocoder = new google.maps.Geocoder();
+	var localized = false;
 	
 	$scope.keyword = '';
 	$scope.markers = [];
@@ -376,9 +377,14 @@ angular
 	}
 
 
+
 	this.getUserWeather = function (position) {
 
+		if ( localized === true ) return false;
+
 		map.panTo(new google.maps.LatLng(position.coords.latitude, position.coords.longitude));
+
+		localized = true;
 
         map.addListener('idle', function () {
 
@@ -397,7 +403,6 @@ angular
 			})
 
         });
-
 
 
 	}
@@ -431,7 +436,7 @@ angular
             	self.getBoundsCities();
             });
 
-			if (navigator.geolocation) {
+			if ( localized === false && navigator.geolocation) {				
 				navigator.geolocation.watchPosition(self.getUserWeather, null,{ enableHighAccuracy: false });
 			}
 
