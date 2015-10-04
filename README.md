@@ -24,3 +24,11 @@ Run with
 nodemon app.js
 ```
 
+## Test
+
+NgWeather have some unit testing to check response of each used API
+
+Once the server lifted, open a second cli and run test with 
+```bash
+mocha
+```
