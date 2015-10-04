@@ -43,8 +43,6 @@ router.get('/getWeather', function(req, res, next) {
 		}
 	}
 
-	console.log(params);
-
 	request({
 		url: req.app.locals.config.openWeather.endpoint + 'weather',
 		qs: params,
