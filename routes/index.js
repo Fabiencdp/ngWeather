@@ -43,6 +43,8 @@ router.get('/getWeather', function(req, res, next) {
 		}
 	}
 
+	params.APPID = req.app.locals.config.openWeather.clientId;
+
 	request({
 		url: req.app.locals.config.openWeather.endpoint + 'weather',
 		qs: params,
@@ -75,6 +77,7 @@ router.get('/getForecast', function(req, res, next) {
 			q: req.query.name,
 			units: 'metric',
 			cnt: 5,
+			APPID: req.app.locals.config.openWeather.clientId,
 		}
 	}).then( function foundForecast(response) {
 
